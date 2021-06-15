@@ -1,0 +1,24 @@
+
+********************************************************
+** exclude couples with the core allocation problems
+********************************************************
+*this creates exclusions based on the "core" (main) analysis in the DoL paper, as described in its appendix
+
+
+gen marst_bad = qmarst==4 & hhsp==1
+gen sex_bad = qsex==4 & hhsp==1
+gen relate_bad = qrelate==4 & hhsp==1
+
+egen nmarst=sum(marst_bad), by(year serial)
+egen nsex=sum(sex_bad), by(year serial)
+egen nrelate=sum(relate_bad), by(year serial)
+
+
+* qsex or qrelate allocated anytime
+gen bad_core=(nsex>0 | nrelate>0)
+
+* qmarst always before 2005; 2005+ only if mailed-in
+replace bad_core=1 if year<2005 & nmarst>0
+replace bad_core=1 if year>=2005 & nmarst>0 & respmode==1
+
+
