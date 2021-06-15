@@ -1,0 +1,57 @@
+
+gen a=1 if (related==101 | related==201 | related==1114) 
+egen b=sum(a), by(year serial)
+drop if b<2
+drop a b
+
+gen a=1 if (related==101 | related==201 | related==1114)  & sex==1
+egen b=sum(a), by(year serial)
+
+gen c=1 if related==201
+egen d=sum(c), by(year serial)
+
+
+gen gay=(b==2)
+gen les=(b==0)
+gen hmp=(b==1 & d==1)
+*hmp is heterosexual married partners
+gen hump=(b==1 & d==0)
+*hump is heterosexual unmarried partners
+
+gen hhsp=(related==101 | related==201 | related==1114)
+*marks any person who is wither a householder or the spouse/partner of the householder
+
+drop a b c d
+
+
+********************************
+
+*can separate analyses of same-sex vs. different-sex couples also by marital status - married v. unmarried
+
+*locate married couples
+gen a=1 if related==101 | related==201
+egen b=sum(a), by(year serial)
+gen mar=0 
+replace mar=1 if b==2
+drop a b
+*sort hetero, gay, and lesbian married couples
+gen c=(related==101 | related==201) & sex==1
+egen d=sum(c), by(year serial)
+gen gaymar=(d==2 & mar==1)
+gen lesmar=(d==0 & mar==1)
+drop c d
+
+*locate unmarried couples
+gen e=(related==101 | related==1114)
+egen f=sum(e), by(year serial)
+gen ump=0 
+replace ump=1 if f==2
+drop e f
+*sort gay, lesbian, and hetero unmarried couples
+gen g=(related==101 | related==1114) & sex==1
+egen h=sum(g), by(year serial)
+gen gayump=(h==2 & ump==1)
+gen lesump=(h==0 & ump==1)
+drop g h 
+
+drop mar ump 
